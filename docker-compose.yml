@@ -1,0 +1,34 @@
+# D:\Projekte\efi25\docker-compose.yml
+services:
+  # Der Name des API-Dienstes ist wichtig, er wird für die interne Kommunikation verwendet!
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: efi25_api
+    env_file:
+      - credentials.env
+    # Exposed den internen Container-Port 5000 auf den Host-Port 5000
+    ports:
+      - "5000:5000"
+    # Ein internes Netzwerk wird von Docker Compose automatisch erstellt
+    networks:
+      - app-network
+
+  # Der Name des Frontend-Dienstes
+  frontend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: efi25_frontend
+    # Exposed den internen Nginx-Port 80 auf den Host-Port 80 (oder einen anderen, z.B. 3000)
+    ports:
+      - "5173:80"
+    depends_on:
+      - api # Stellt sicher, dass die API gestartet wird, bevor das Frontend gestartet wird
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
